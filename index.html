@@ -1,0 +1,597 @@
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>一季度终端星级情况可视化报告</title>
+    <!-- 引入 Apache ECharts -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+            margin-top: 30px;
+        }
+        h1 {
+            text-align: center;
+            color: #1a5276;
+            border-bottom: none;
+        }
+        .section {
+            background-color: #fff;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .chart-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            gap: 20px; /* Adds space between charts */
+            margin-top: 20px;
+        }
+        .chart {
+            width: 100%; /* Default width */
+            height: 450px; /* Default height */
+            border: 1px solid #eee;
+            border-radius: 5px;
+            padding: 10px;
+            box-sizing: border-box; /* Include padding and border in element's total width and height */
+        }
+        /* Adjust chart sizes for better layout */
+        .chart-half {
+            width: calc(50% - 20px); /* Adjust for gap */
+        }
+         .chart-full {
+             width: calc(100% - 20px); /* Adjust for gap */
+         }
+        @media (max-width: 900px) {
+            .chart-half {
+                width: calc(100% - 20px); /* Stack charts on smaller screens */
+            }
+        }
+        p.emphasis {
+            font-style: italic;
+            color: #e74c3c;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+            background-color: #fceded;
+            padding: 8px;
+            border-radius: 4px;
+        }
+         .tooltip-formatter {
+            line-height: 1.4;
+        }
+        .tooltip-formatter strong {
+            color: #eee;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>一季度大有销售区终端星级情况可视化报告</h1>
+
+    <!-- ==================== 板块一 ==================== -->
+    <div class="section">
+        <h2>板块一：一季度终端星级情况一览（已在线签流程全部统计）</h2>
+        <p>本板块数据基于<strong>已完成在线签约流程</strong>的终端进行统计。</p>
+
+        <div class="chart-container">
+            <!-- Chart 1.1: 各销售区形象覆盖率与达标率对比 (柱状图) -->
+            <div id="chart1_1" class="chart chart-half"></div>
+
+            <!-- Chart 1.2: 各销售区形象店数量占比 (饼图) -->
+            <div id="chart1_2" class="chart chart-half"></div>
+
+            <!-- Chart 1.3: 各星级形象店总数占比 (饼图) -->
+            <div id="chart1_3" class="chart chart-half"></div>
+
+            <!-- Chart 1.4: 各销售区星级分布情况 (旭日图) -->
+            <div id="chart1_4" class="chart chart-half"></div>
+        </div>
+    </div>
+
+    <!-- ==================== 板块二 ==================== -->
+    <div class="section">
+        <h2>板块二：一季度终端星级各大区情况一览（已签约已审批-含待厂商签署）</h2>
+        <p class="emphasis">注意：本板块统计维度为“已签约已审批 - 含待厂商签署”，数据范围与板块一不同。</p>
+        <p>本板块数据基于<strong>已完成签约及内部审批流程（包含待厂商最终签署状态）</strong>的终端进行统计。</p>
+
+        <div class="chart-container">
+            <!-- Chart 2.1: 各销售区形象覆盖率与达标率对比 (柱状图) -->
+            <div id="chart2_1" class="chart chart-half"></div>
+
+            <!-- Chart 2.2: 各销售区形象店数量占比 (饼图) -->
+            <div id="chart2_2" class="chart chart-half"></div>
+
+            <!-- Chart 2.3: 各星级形象店总数占比 (饼图) -->
+            <div id="chart2_3" class="chart chart-half"></div>
+
+            <!-- Chart 2.4: 各销售区星级分布情况 (旭日图) -->
+            <div id="chart2_4" class="chart chart-half"></div>
+        </div>
+    </div>
+
+    <!-- ==================== 板块三 ==================== -->
+    <div class="section">
+        <h2>板块三：一季度终端星级各一级经销商进度情况一览（已签约已审批-含待厂商签署）</h2>
+        <p class="emphasis">注意：本板块统计维度为“已签约已审批 - 含待厂商签署”，聚焦于一级经销商层面。</p>
+        <p>本板块展示各一级经销商在<strong>已完成签约及内部审批流程（包含待厂商最终签署状态）</strong>的终端覆盖与达标情况。</p>
+
+        <div class="chart-container">
+            <!-- Chart 3.1: 各一级经销商形象覆盖率与达标率 (水平条形图) -->
+            <div id="chart3_1" class="chart chart-full" style="height: 800px;"></div> <!-- Increased height for readability -->
+
+             <!-- Chart 3.2: 各一级经销商星级签约家数 (垂直柱状图) -->
+            <div id="chart3_2" class="chart chart-full" style="height: 500px;"></div>
+
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        // ==================== 数据准备 ====================
+
+        // --- 板块一数据 ---
+        const data1 = [
+            { area: '一区', star2: 2, star3: 99, star4: 104, star5: 29, total: 234, coveredCount: 209, coveredRate: 0.8932, compliantCount: 198, compliantRate: 0.8462 },
+            { area: '二区', star2: 23, star3: 60, star4: 49, star5: 11, total: 143, coveredCount: 129, coveredRate: 0.9021, compliantCount: 102, compliantRate: 0.7133 },
+            { area: '三区', star2: 24, star3: 59, star4: 28, star5: 22, total: 133, coveredCount: 127, coveredRate: 0.9549, compliantCount: 115, compliantRate: 0.8647 },
+            { area: '四区', star2: 7, star3: 49, star4: 76, star5: 21, total: 153, coveredCount: 144, coveredRate: 0.9412, compliantCount: 131, compliantRate: 0.8562 },
+            { area: '五区', star2: 8, star3: 27, star4: 27, star5: 15, total: 77, coveredCount: 63, coveredRate: 0.8182, compliantCount: 54, compliantRate: 0.7013 },
+            { area: '六区', star2: 1, star3: 37, star4: 25, star5: 10, total: 73, coveredCount: 72, coveredRate: 0.9863, compliantCount: 71, compliantRate: 0.9726 },
+            { area: '上海', star2: 18, star3: 4, star4: 0, star5: 0, total: 22, coveredCount: 12, coveredRate: 0.5455, compliantCount: 6, compliantRate: 0.2727 }
+        ];
+        const summary1 = { star2: 83, star3: 335, star4: 309, star5: 108, total: 835, coveredCount: 756, coveredRate: 0.9054, compliantCount: 677, compliantRate: 0.8108 };
+
+        // --- 板块二数据 ---
+        const data2 = [
+            { area: '一区', star2: 0, star3: 12, star4: 25, star5: 11, total: 48, coveredCount: 48, coveredRate: 1.0000, compliantCount: 43, compliantRate: 0.8958 },
+            { area: '二区', star2: 18, star3: 45, star4: 36, star5: 10, total: 109, coveredCount: 103, coveredRate: 0.9450, compliantCount: 102, compliantRate: 0.9358 },
+            { area: '三区', star2: 21, star3: 52, star4: 25, star5: 20, total: 118, coveredCount: 115, coveredRate: 0.9746, compliantCount: 104, compliantRate: 0.8814 },
+            { area: '四区', star2: 2, star3: 9, star4: 13, star5: 7, total: 31, coveredCount: 30, coveredRate: 0.9677, compliantCount: 27, compliantRate: 0.8710 },
+            { area: '五区', star2: 1, star3: 11, star4: 15, star5: 10, total: 37, coveredCount: 34, coveredRate: 0.9189, compliantCount: 30, compliantRate: 0.8108 },
+            { area: '六区', star2: 1, star3: 32, star4: 25, star5: 9, total: 67, coveredCount: 66, coveredRate: 0.9851, compliantCount: 65, compliantRate: 0.9701 },
+            { area: '上海', star2: 18, star3: 4, star4: 0, star5: 0, total: 22, coveredCount: 12, coveredRate: 0.5455, compliantCount: 6, compliantRate: 0.2727 }
+        ];
+        const summary2 = { star2: 61, star3: 165, star4: 139, star5: 67, total: 432, coveredCount: 408, coveredRate: 0.9444, compliantCount: 377, compliantRate: 0.8727 };
+
+        // --- 板块三数据 ---
+        const data3 = [
+             // Handle potential missing data gracefully (replace nan/empty strings with 0 or null where appropriate)
+            { dealer: '东莞市名品机电设备有限公司', signed: 20, covered: 20, coveredRate: 1.00, compliant: 19, compliantRate: 0.95 },
+            { dealer: '东莞市顺华城五金机电有限公司', signed: 11, covered: 11, coveredRate: 1.00, compliant: 11, compliantRate: 1.00 },
+            { dealer: '福州聚合力贸易有限公司', signed: 14, covered: 14, coveredRate: 1.00, compliant: 14, compliantRate: 1.00 },
+            { dealer: '广州神川五金机电有限公司', signed: 4, covered: 4, coveredRate: 1.00, compliant: 3, compliantRate: 0.75 },
+            { dealer: '贵阳华月机电设备有限公司', signed: 7, covered: 7, coveredRate: 1.00, compliant: 7, compliantRate: 1.00 },
+            { dealer: '哈尔滨闽创商贸有限公司', signed: 12, covered: 12, coveredRate: 1.00, compliant: 12, compliantRate: 1.00 },
+            { dealer: '杭州五京机电有限公司', signed: 60, covered: 59, coveredRate: 0.9833, compliant: 56, compliantRate: 0.9333 },
+            { dealer: '河南省厚望科技有限公司', signed: 2, covered: 2, coveredRate: 1.00, compliant: 2, compliantRate: 1.00 },
+            { dealer: '怀化圣帕机电有限公司', signed: 4, covered: 0, coveredRate: 0.00, compliant: 0, compliantRate: 0.00 }, // Handle 'nan' as 0
+            { dealer: '江西省银强实业有限公司', signed: 26, covered: 24, coveredRate: 0.9231, compliant: 24, compliantRate: 0.9231 },
+            { dealer: '昆明斯晟商贸有限公司', signed: 8, covered: 8, coveredRate: 1.00, compliant: 5, compliantRate: 0.6250 },
+            { dealer: '临沂大剑商贸有限公司', signed: 7, covered: 7, coveredRate: 1.00, compliant: 7, compliantRate: 1.00 },
+            { dealer: '宁波新逸凡五金工具有限公司', signed: 10, covered: 10, coveredRate: 1.00, compliant: 10, compliantRate: 1.00 },
+            { dealer: '泉州昌洋机电有限公司', signed: 10, covered: 10, coveredRate: 1.00, compliant: 10, compliantRate: 1.00 },
+            { dealer: '泉州市莱赛五金机电有限公司', signed: 8, covered: 8, coveredRate: 1.00, compliant: 8, compliantRate: 1.00 },
+            { dealer: '厦门金铭鑫机电设备有限公司', signed: 24, covered: 24, coveredRate: 1.00, compliant: 24, compliantRate: 1.00 },
+            { dealer: '汕头市山田五金机械有限公司', signed: 5, covered: 5, coveredRate: 1.00, compliant: 5, compliantRate: 1.00 },
+            { dealer: '上海百工五金机械成套有限公司', signed: 4, covered: 0, coveredRate: 0.00, compliant: 0, compliantRate: 0.00 }, // Handle 'nan' as 0
+            { dealer: '上海金乾盛五金机电有限公司', signed: 18, covered: 12, coveredRate: 0.6667, compliant: 6, compliantRate: 0.3333 },
+            { dealer: '沈阳裕禧铖商贸有限公司', signed: 35, covered: 34, coveredRate: 0.9714, compliant: 33, compliantRate: 0.9429 },
+            { dealer: '石家庄智洋商贸有限公司', signed: 10, covered: 10, coveredRate: 1.00, compliant: 10, compliantRate: 1.00 },
+            { dealer: '天津市金可鑫机电设备销售有限公司', signed: 11, covered: 11, coveredRate: 1.00, compliant: 11, compliantRate: 1.00 },
+            { dealer: '潍坊富利达工贸有限公司', signed: 24, covered: 23, coveredRate: 0.9583, compliant: 17, compliantRate: 0.7083 },
+            { dealer: '温州市红鼎五金机电有限公司', signed: 17, covered: 16, coveredRate: 0.9412, compliant: 14, compliantRate: 0.8235 },
+            { dealer: '乌鲁木齐金泉有商贸有限公司', signed: 6, covered: 6, coveredRate: 1.00, compliant: 6, compliantRate: 1.00 },
+            { dealer: '无锡千工正太贸易有限公司', signed: 19, covered: 18, coveredRate: 0.9474, compliant: 17, compliantRate: 0.8947 },
+            { dealer: '武汉奥奔商贸有限公司', signed: 8, covered: 8, coveredRate: 1.00, compliant: 7, compliantRate: 0.8750 },
+            { dealer: '襄阳顺河机电有限公司', signed: 6, covered: 6, coveredRate: 1.00, compliant: 4, compliantRate: 0.6667 },
+            { dealer: '新疆凯红五交化有限公司', signed: 10, covered: 10, coveredRate: 1.00, compliant: 9, compliantRate: 0.9000 },
+            { dealer: '徐州和振商贸有限公司', signed: 11, covered: 11, coveredRate: 1.00, compliant: 9, compliantRate: 0.8182 },
+            { dealer: '宜昌谐友机电商贸有限公司', signed: 11, covered: 8, coveredRate: 0.7273, compliant: 7, compliantRate: 0.6364 },
+            { dealer: '长春市中一机电有限公司', signed: 9, covered: 9, coveredRate: 1.00, compliant: 9, compliantRate: 1.00 },
+            { dealer: '重庆旺昌机械设备有限公司', signed: 1, covered: 1, coveredRate: 1.00, compliant: 1, compliantRate: 1.00 }
+        ];
+        // Sort data3 by dealer name for consistent display - remove _大有_渠道 suffix for clarity
+        data3.forEach(item => {
+            item.dealer = item.dealer.replace(/_大有_渠道$/, '').replace(/-大有-渠道$/, '');
+        });
+        data3.sort((a, b) => a.dealer.localeCompare(b.dealer, 'zh-CN'));
+
+        const summary3 = { signed: 432, covered: 408, coveredRate: 0.9444, compliant: 379, compliantRate: 0.8773 }; // Using provided summary, slightly different compliant count than table 2 summary
+
+
+        // ==================== ECharts 初始化函数 ====================
+        function initChart(chartId, option) {
+            var myChart = echarts.init(document.getElementById(chartId));
+            myChart.setOption(option);
+            // Optional: Add resize listener
+             window.addEventListener('resize', function () {
+                 myChart.resize();
+             });
+        }
+
+        // ==================== 板块一 图表配置 ====================
+
+        // --- Chart 1.1: 各销售区形象覆盖率与达标率对比 (柱状图) ---
+        const option1_1 = {
+            title: { text: '各销售区形象覆盖与达标率', left: 'center', textStyle: { fontSize: 16 } },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: { type: 'shadow' },
+                formatter: function (params) {
+                     let tooltipHtml = `<div class="tooltip-formatter"><strong>${params[0].name}</strong><br/>`;
+                     params.forEach(param => {
+                         tooltipHtml += `${param.marker} ${param.seriesName}: ${(param.value * 100).toFixed(2)}%<br/>`;
+                     });
+                     // Find corresponding data for counts
+                     const areaData = data1.find(d => d.area === params[0].name);
+                     if (areaData) {
+                         tooltipHtml += `形象覆盖家数: ${areaData.coveredCount}<br/>`;
+                         tooltipHtml += `形象达标家数: ${areaData.compliantCount}<br/>`;
+                         tooltipHtml += `区域汇总家数: ${areaData.total}`;
+                     }
+                      tooltipHtml += `</div>`;
+                     return tooltipHtml;
+                }
+            },
+            legend: { data: ['形象覆盖率', '形象达标率'], bottom: 10 },
+            grid: { left: '3%', right: '4%', bottom: '10%', containLabel: true },
+            xAxis: {
+                type: 'category',
+                data: data1.map(item => item.area),
+                axisLabel: { interval: 0, rotate: 30 }
+            },
+            yAxis: {
+                type: 'value',
+                axisLabel: { formatter: '{value}' } // Show raw rate
+                // Use below if you prefer percentage display on axis
+                // axisLabel: { formatter: function (value) { return (value * 100).toFixed(0) + '%'; } }
+            },
+            series: [
+                {
+                    name: '形象覆盖率',
+                    type: 'bar',
+                    data: data1.map(item => item.coveredRate),
+                    itemStyle: { color: '#5470C6' },
+                    label: { show: true, position: 'top', formatter: function (params) { return (params.value * 100).toFixed(1) + '%'; }, fontSize: 10 }
+                },
+                {
+                    name: '形象达标率',
+                    type: 'bar',
+                    data: data1.map(item => item.compliantRate),
+                    itemStyle: { color: '#91CC75' },
+                    label: { show: true, position: 'top', formatter: function (params) { return (params.value * 100).toFixed(1) + '%'; }, fontSize: 10 }
+                }
+            ]
+        };
+        initChart('chart1_1', option1_1);
+
+        // --- Chart 1.2: 各销售区形象店数量占比 (饼图) ---
+        const option1_2 = {
+            title: { text: '各销售区形象店数量占比 (区域汇总)', left: 'center', textStyle: { fontSize: 16 } },
+            tooltip: {
+                trigger: 'item',
+                formatter: '{a} <br/>{b}: {c}家 ({d}%)'
+            },
+            legend: { orient: 'vertical', left: 'left', top: 'middle' },
+            series: [
+                {
+                    name: '销售区',
+                    type: 'pie',
+                    radius: ['40%', '70%'], // Donut chart
+                    center: ['65%', '55%'], // Adjust center to accommodate legend
+                    avoidLabelOverlap: false,
+                    label: { show: true, formatter: '{b}\n{d}%', fontSize: 11 },
+                    emphasis: { label: { show: true, fontSize: '14', fontWeight: 'bold' } },
+                    labelLine: { show: true },
+                    data: data1.map(item => ({ value: item.total, name: item.area }))
+                }
+            ]
+        };
+        initChart('chart1_2', option1_2);
+
+        // --- Chart 1.3: 各星级形象店总数占比 (饼图) ---
+        const option1_3 = {
+            title: { text: '各星级形象店总数占比', left: 'center', textStyle: { fontSize: 16 } },
+            tooltip: {
+                trigger: 'item',
+                formatter: '{a} <br/>{b}: {c}家 ({d}%)'
+            },
+            legend: { top: 'bottom' },
+            series: [
+                {
+                    name: '星级',
+                    type: 'pie',
+                    radius: '60%',
+                    center: ['50%', '55%'], // Slightly adjusted center
+                    data: [
+                        { value: summary1.star2, name: '二星' },
+                        { value: summary1.star3, name: '三星' },
+                        { value: summary1.star4, name: '四星' },
+                        { value: summary1.star5, name: '五星' }
+                    ],
+                    emphasis: { itemStyle: { shadowBlur: 10, shadowOffsetX: 0, shadowColor: 'rgba(0, 0, 0, 0.5)' } },
+                    label: { formatter: '{b}\n{c}家 ({d}%)', fontSize: 11 }
+                }
+            ]
+        };
+        initChart('chart1_3', option1_3);
+
+        // --- Chart 1.4: 各销售区星级分布情况 (旭日图) ---
+         const sunburstData1 = data1.map(area => ({
+             name: area.area,
+             children: [
+                 { name: '二星', value: area.star2 },
+                 { name: '三星', value: area.star3 },
+                 { name: '四星', value: area.star4 },
+                 { name: '五星', value: area.star5 }
+             ].filter(star => star.value > 0) // Filter out zero-value stars for cleaner look
+         }));
+
+        const option1_4 = {
+            title: { text: '各销售区星级分布', left: 'center', textStyle: { fontSize: 16 } },
+            tooltip: { formatter: '{b}: {c}家' },
+            series: {
+                type: 'sunburst',
+                radius: [0, '90%'],
+                label: { rotate: 'radial' },
+                data: sunburstData1,
+                emphasis: { focus: 'ancestor' },
+                levels: [
+                    {}, // Style for root node (not visible)
+                    { // Style for areas
+                        r0: '15%',
+                        r: '55%',
+                        itemStyle: { borderWidth: 2 },
+                        label: { rotate: 'tangential' }
+                    },
+                    { // Style for star levels
+                        r0: '55%',
+                        r: '95%',
+                        label: { align: 'right' }
+                    }
+                 ]
+            }
+        };
+        initChart('chart1_4', option1_4);
+
+
+        // ==================== 板块二 图表配置 ====================
+        // (Similar structure to Block 1, using data2 and summary2)
+
+        // --- Chart 2.1: 各销售区形象覆盖率与达标率对比 (柱状图) ---
+        const option2_1 = {
+             title: { text: '各销售区形象覆盖与达标率 (含待签)', left: 'center', textStyle: { fontSize: 16 } },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: { type: 'shadow' },
+                formatter: function (params) {
+                     let tooltipHtml = `<div class="tooltip-formatter"><strong>${params[0].name}</strong><br/>`;
+                     params.forEach(param => {
+                         tooltipHtml += `${param.marker} ${param.seriesName}: ${(param.value * 100).toFixed(2)}%<br/>`;
+                     });
+                     const areaData = data2.find(d => d.area === params[0].name);
+                     if (areaData) {
+                         tooltipHtml += `形象覆盖家数: ${areaData.coveredCount}<br/>`;
+                         tooltipHtml += `形象达标家数: ${areaData.compliantCount}<br/>`;
+                         tooltipHtml += `区域汇总家数: ${areaData.total}`;
+                     }
+                     tooltipHtml += `</div>`;
+                     return tooltipHtml;
+                 }
+            },
+            legend: { data: ['形象覆盖率', '形象达标率'], bottom: 10 },
+            grid: { left: '3%', right: '4%', bottom: '10%', containLabel: true },
+            xAxis: {
+                type: 'category',
+                data: data2.map(item => item.area),
+                axisLabel: { interval: 0, rotate: 30 }
+            },
+            yAxis: {
+                type: 'value',
+                axisLabel: { formatter: '{value}' }
+            },
+            series: [
+                {
+                    name: '形象覆盖率',
+                    type: 'bar',
+                    data: data2.map(item => item.coveredRate),
+                    itemStyle: { color: '#5470C6' },
+                     label: { show: true, position: 'top', formatter: function (params) { return (params.value * 100).toFixed(1) + '%'; }, fontSize: 10 }
+                },
+                {
+                    name: '形象达标率',
+                    type: 'bar',
+                    data: data2.map(item => item.compliantRate),
+                    itemStyle: { color: '#91CC75' },
+                     label: { show: true, position: 'top', formatter: function (params) { return (params.value * 100).toFixed(1) + '%'; }, fontSize: 10 }
+                }
+            ]
+        };
+        initChart('chart2_1', option2_1);
+
+        // --- Chart 2.2: 各销售区形象店数量占比 (饼图) ---
+        const option2_2 = {
+            title: { text: '各销售区形象店数量占比 (区域汇总, 含待签)', left: 'center', textStyle: { fontSize: 16 } },
+            tooltip: { trigger: 'item', formatter: '{a} <br/>{b}: {c}家 ({d}%)' },
+            legend: { orient: 'vertical', left: 'left', top: 'middle' },
+            series: [
+                {
+                    name: '销售区',
+                    type: 'pie',
+                    radius: ['40%', '70%'],
+                    center: ['65%', '55%'],
+                    avoidLabelOverlap: false,
+                    label: { show: true, formatter: '{b}\n{d}%', fontSize: 11 },
+                    emphasis: { label: { show: true, fontSize: '14', fontWeight: 'bold' } },
+                    labelLine: { show: true },
+                    data: data2.map(item => ({ value: item.total, name: item.area }))
+                }
+            ]
+        };
+        initChart('chart2_2', option2_2);
+
+        // --- Chart 2.3: 各星级形象店总数占比 (饼图) ---
+        const option2_3 = {
+            title: { text: '各星级形象店总数占比 (含待签)', left: 'center', textStyle: { fontSize: 16 } },
+            tooltip: { trigger: 'item', formatter: '{a} <br/>{b}: {c}家 ({d}%)' },
+            legend: { top: 'bottom' },
+            series: [
+                {
+                    name: '星级',
+                    type: 'pie',
+                    radius: '60%',
+                    center: ['50%', '55%'],
+                    data: [
+                        { value: summary2.star2, name: '二星' },
+                        { value: summary2.star3, name: '三星' },
+                        { value: summary2.star4, name: '四星' },
+                        { value: summary2.star5, name: '五星' }
+                    ].filter(star => star.value > 0), // Filter 0 values
+                    emphasis: { itemStyle: { shadowBlur: 10, shadowOffsetX: 0, shadowColor: 'rgba(0, 0, 0, 0.5)' } },
+                     label: { formatter: '{b}\n{c}家 ({d}%)', fontSize: 11 }
+                }
+            ]
+        };
+        initChart('chart2_3', option2_3);
+
+        // --- Chart 2.4: 各销售区星级分布情况 (旭日图) ---
+         const sunburstData2 = data2.map(area => ({
+             name: area.area,
+             children: [
+                 { name: '二星', value: area.star2 },
+                 { name: '三星', value: area.star3 },
+                 { name: '四星', value: area.star4 },
+                 { name: '五星', value: area.star5 }
+             ].filter(star => star.value > 0)
+         }));
+
+        const option2_4 = {
+             title: { text: '各销售区星级分布 (含待签)', left: 'center', textStyle: { fontSize: 16 } },
+            tooltip: { formatter: '{b}: {c}家' },
+            series: {
+                type: 'sunburst',
+                radius: [0, '90%'],
+                label: { rotate: 'radial' },
+                data: sunburstData2,
+                emphasis: { focus: 'ancestor' },
+                 levels: [
+                     {},
+                     { r0: '15%', r: '55%', itemStyle: { borderWidth: 2 }, label: { rotate: 'tangential' } },
+                     { r0: '55%', r: '95%', label: { align: 'right' } }
+                 ]
+            }
+        };
+        initChart('chart2_4', option2_4);
+
+
+        // ==================== 板块三 图表配置 ====================
+
+        // --- Chart 3.1: 各一级经销商形象覆盖率与达标率 (水平条形图) ---
+        const option3_1 = {
+            title: { text: '各一级经销商形象覆盖与达标率 (含待签)', left: 'center', textStyle: { fontSize: 16 } },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: { type: 'shadow' },
+                 formatter: function (params) {
+                     let tooltipHtml = `<div class="tooltip-formatter"><strong>${params[0].name}</strong><br/>`;
+                     // Find corresponding data first
+                     const dealerData = data3.find(d => d.dealer === params[0].name);
+                     params.forEach(param => {
+                         tooltipHtml += `${param.marker} ${param.seriesName}: ${(param.value * 100).toFixed(2)}%<br/>`;
+                     });
+                     if (dealerData) {
+                          tooltipHtml += `星级签约家数: ${dealerData.signed}<br/>`;
+                         tooltipHtml += `形象覆盖家数: ${dealerData.covered}<br/>`;
+                         tooltipHtml += `形象达标家数: ${dealerData.compliant}<br/>`;
+                     }
+                     tooltipHtml += `</div>`;
+                     return tooltipHtml;
+                 }
+            },
+            legend: { data: ['形象覆盖率', '形象达标率'], bottom: 5 },
+            grid: { left: '20%', right: '5%', top: '5%', bottom: '8%', containLabel: false }, // Increased left margin for labels
+            xAxis: {
+                type: 'value',
+                axisLabel: { formatter: function (value) { return (value * 100).toFixed(0) + '%'; } }
+            },
+            yAxis: {
+                type: 'category',
+                data: data3.map(item => item.dealer),
+                axisLabel: { fontSize: 10 } // Smaller font for potentially long names
+            },
+            series: [
+                {
+                    name: '形象覆盖率',
+                    type: 'bar',
+                    data: data3.map(item => item.coveredRate),
+                    itemStyle: { color: '#5470C6' },
+                    label: { show: true, position: 'right', formatter: function (params) { return (params.value * 100).toFixed(0) + '%'; }, fontSize: 9 }
+                },
+                {
+                    name: '形象达标率',
+                    type: 'bar',
+                    data: data3.map(item => item.compliantRate),
+                    itemStyle: { color: '#91CC75' },
+                     label: { show: true, position: 'right', formatter: function (params) { return (params.value * 100).toFixed(0) + '%'; }, fontSize: 9 }
+                }
+            ]
+        };
+        initChart('chart3_1', option3_1);
+
+
+         // --- Chart 3.2: 各一级经销商星级签约家数 (垂直柱状图) ---
+         const option3_2 = {
+             title: { text: '各一级经销商星级签约家数 (含待签)', left: 'center', textStyle: { fontSize: 16 } },
+             tooltip: {
+                 trigger: 'axis',
+                 axisPointer: { type: 'shadow' },
+                 formatter: '{b}<br/>{a}: {c}家'
+             },
+             grid: { left: '3%', right: '4%', bottom: '15%', containLabel: true }, // Increased bottom margin for rotated labels
+             xAxis: {
+                 type: 'category',
+                 data: data3.map(item => item.dealer),
+                 axisLabel: { interval: 0, rotate: 45, fontSize: 10 } // Rotate labels to prevent overlap
+             },
+             yAxis: {
+                 type: 'value',
+                 name: '签约家数'
+             },
+             dataZoom: [ // Add zoom for better navigation with many bars
+                 {
+                     type: 'slider',
+                     start: 0,
+                     end: 50, // Show first 50% initially
+                     bottom: 5
+                 }
+             ],
+             series: [
+                 {
+                     name: '星级签约家数',
+                     type: 'bar',
+                     data: data3.map(item => item.signed),
+                     itemStyle: { color: '#fac858' }, // Different color
+                     label: { show: true, position: 'top', fontSize: 10 }
+                 }
+             ]
+         };
+         initChart('chart3_2', option3_2);
+
+    </script>
+
+</body>
+</html>
+```
